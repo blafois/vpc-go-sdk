@@ -15782,6 +15782,79 @@ func (vpc *VpcV1) ListIpsecPolicyConnectionsWithContext(ctx context.Context, lis
 	return
 }
 
+// ListVPNServers : List all VPN servers (OpenVPN client-to-site)
+// This request lists all VPN servers in the region.
+func (vpc *VpcV1) ListVPNServers(listVPNServersOptions *ListVPNServersOptions) (result *VPNServerCollection, response *core.DetailedResponse, err error) {
+	return vpc.ListVPNServersWithContext(context.Background(), listVPNServersOptions)
+}
+
+func (vpc *VpcV1) ListVPNServersWithContext(ctx context.Context, listVPNServersOptions *ListVPNServersOptions) (result *VPNServerCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateStruct(listVPNServersOptions, "listVPNServersOptions")
+	if err != nil {
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers`, nil)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range listVPNServersOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServers")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	builder.AddQuery("maturity", "beta") // WARNING - will have to be managed properly
+
+	if listVPNServersOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listVPNServersOptions.Start))
+	}
+	if listVPNServersOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listVPNServersOptions.Limit))
+	}
+	if listVPNServersOptions.ResourceGroupID != nil {
+		builder.AddQuery("resource_group.id", fmt.Sprint(*listVPNServersOptions.ResourceGroupID))
+	}
+	if listVPNServersOptions.Name != nil {
+		builder.AddQuery("name", fmt.Sprint(*listVPNServersOptions.Name))
+	}
+	if listVPNServersOptions.Sort != nil {
+		builder.AddQuery("sort", fmt.Sprint(*listVPNServersOptions.Sort))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServerCollection)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
 // ListVPNGateways : List all VPN gateways
 // This request lists all VPN gateways in the region.
 func (vpc *VpcV1) ListVPNGateways(listVPNGatewaysOptions *ListVPNGatewaysOptions) (result *VPNGatewayCollection, response *core.DetailedResponse, err error) {
@@ -15855,6 +15928,76 @@ func (vpc *VpcV1) CreateVPNGateway(createVPNGatewayOptions *CreateVPNGatewayOpti
 	return vpc.CreateVPNGatewayWithContext(context.Background(), createVPNGatewayOptions)
 }
 
+// CreateVPNServer : Create a VPN server
+// This request creates a new VPN server.
+func (vpc *VpcV1) CreateVPNServer(createVPNServerOptions *CreateVPNServerOptions) (result VPNServerIntf, response *core.DetailedResponse, err error) {
+	return vpc.CreateVPNServerWithContext(context.Background(), createVPNServerOptions)
+}
+
+// CreateVPNServerWithContext is an alternate form of the CreateVPNServer method which supports a Context parameter
+func (vpc *VpcV1) CreateVPNServerWithContext(ctx context.Context, createVPNServerOptions *CreateVPNServerOptions) (result VPNServerIntf, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createVPNServerOptions, "createVPNServerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+
+	err = core.ValidateStruct(createVPNServerOptions, "createVPNServerOptions")
+	if err != nil {
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.POST)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers`, nil)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range createVPNServerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	builder.AddQuery("maturity", "beta") // WARNING - will have to be managed properly
+
+	_, err = builder.SetBodyContentJSON(createVPNServerOptions.VPNServerPrototype)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServer)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
 // CreateVPNGatewayWithContext is an alternate form of the CreateVPNGateway method which supports a Context parameter
 func (vpc *VpcV1) CreateVPNGatewayWithContext(ctx context.Context, createVPNGatewayOptions *CreateVPNGatewayOptions) (result VPNGatewayIntf, response *core.DetailedResponse, err error) {
 	err = core.ValidateNotNil(createVPNGatewayOptions, "createVPNGatewayOptions cannot be nil")
@@ -15922,6 +16065,62 @@ func (vpc *VpcV1) DeleteVPNGateway(deleteVPNGatewayOptions *DeleteVPNGatewayOpti
 	return vpc.DeleteVPNGatewayWithContext(context.Background(), deleteVPNGatewayOptions)
 }
 
+// DeleteVPNServer : Delete a VPN server
+// This request deletes a VPN server. This operation cannot be reversed. For this request to succeed, the VPN server
+// must not have a `status` of `pending`
+func (vpc *VpcV1) DeleteVPNServer(deleteVPNServerOptions *DeleteVPNServerOptions) (response *core.DetailedResponse, err error) {
+	return vpc.DeleteVPNServerWithContext(context.Background(), deleteVPNServerOptions)
+}
+
+// DeleteVPNServerWithContext is an alternate form of the DeleteVPNServer method which supports a Context parameter
+func (vpc *VpcV1) DeleteVPNServerWithContext(ctx context.Context, deleteVPNServerOptions *DeleteVPNServerOptions) (response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(deleteVPNServerOptions, "deleteVPNServerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+
+	err = core.ValidateStruct(deleteVPNServerOptions, "deleteVPNServerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *deleteVPNServerOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.DELETE)
+	builder = builder.WithContext(ctx)
+
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range deleteVPNServerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	builder.AddQuery("maturity", "beta") // WARNING - will have to be managed properly
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	response, err = vpc.Service.Request(request, nil)
+
+	return
+}
+
 // DeleteVPNGatewayWithContext is an alternate form of the DeleteVPNGateway method which supports a Context parameter
 func (vpc *VpcV1) DeleteVPNGatewayWithContext(ctx context.Context, deleteVPNGatewayOptions *DeleteVPNGatewayOptions) (response *core.DetailedResponse, err error) {
 	err = core.ValidateNotNil(deleteVPNGatewayOptions, "deleteVPNGatewayOptions cannot be nil")
@@ -15971,6 +16170,71 @@ func (vpc *VpcV1) DeleteVPNGatewayWithContext(ctx context.Context, deleteVPNGate
 // This request retrieves a single VPN gateway specified by the identifier in the URL.
 func (vpc *VpcV1) GetVPNGateway(getVPNGatewayOptions *GetVPNGatewayOptions) (result VPNGatewayIntf, response *core.DetailedResponse, err error) {
 	return vpc.GetVPNGatewayWithContext(context.Background(), getVPNGatewayOptions)
+}
+
+// GetVPNServer : Retrieve a VPN server
+// This request retrieves a single VPN server specified by the identifier in the URL.
+func (vpc *VpcV1) GetVPNServer(getVPNServerOptions *GetVPNServerOptions) (result VPNServerIntf, response *core.DetailedResponse, err error) {
+	return vpc.GetVPNServerWithContext(context.Background(), getVPNServerOptions)
+}
+
+// GetVPNServerWithContext is an alternate form of the GetVPNServer method which supports a Context parameter
+func (vpc *VpcV1) GetVPNServerWithContext(ctx context.Context, getVPNServerOptions *GetVPNServerOptions) (result VPNServerIntf, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getVPNServerOptions, "getVPNServerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(getVPNServerOptions, "getVPNServerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *getVPNServerOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range getVPNServerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	builder.AddQuery("maturity", "beta") // WARNING - will have to be managed properly
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServer)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
 }
 
 // GetVPNGatewayWithContext is an alternate form of the GetVPNGateway method which supports a Context parameter
@@ -26858,6 +27122,15 @@ type CreateVPNGatewayOptions struct {
 	Headers map[string]string
 }
 
+// CreateVPNServerOptions : The CreateVPNServer options.
+type CreateVPNServerOptions struct {
+	// The VPN server prototype object.
+	VPNServerPrototype VPNServerPrototypeIntf `json:"VPNServerPrototype" validate:"required"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
 // NewCreateVPNGatewayOptions : Instantiate CreateVPNGatewayOptions
 func (*VpcV1) NewCreateVPNGatewayOptions(vpnGatewayPrototype VPNGatewayPrototypeIntf) *CreateVPNGatewayOptions {
 	return &CreateVPNGatewayOptions{
@@ -30545,6 +30818,22 @@ type DeleteVPNGatewayOptions struct {
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
+}
+
+// DeleteVPNServerOptions : The DeleteVPNServer options.
+type DeleteVPNServerOptions struct {
+	// The VPN server identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// NewDeleteVPNServerOptions : Instantiate DeleteVPNServerOptions
+func (*VpcV1) NewDeleteVPNServerOptions(id string) *DeleteVPNServerOptions {
+	return &DeleteVPNServerOptions{
+		ID: core.StringPtr(id),
+	}
 }
 
 // NewDeleteVPNGatewayOptions : Instantiate DeleteVPNGatewayOptions
@@ -34345,6 +34634,15 @@ type GetVPNGatewayOptions struct {
 	Headers map[string]string
 }
 
+// GetVPNServerOptions : The GetVPNServer options.
+type GetVPNServerOptions struct {
+	// The VPN server identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
 // NewGetVPNGatewayOptions : Instantiate GetVPNGatewayOptions
 func (*VpcV1) NewGetVPNGatewayOptions(id string) *GetVPNGatewayOptions {
 	return &GetVPNGatewayOptions{
@@ -34352,8 +34650,21 @@ func (*VpcV1) NewGetVPNGatewayOptions(id string) *GetVPNGatewayOptions {
 	}
 }
 
+// NewGetVPNServerOptions : Instantiate GetVPNServerOptions
+func (*VpcV1) NewGetVPNServerOptions(id string) *GetVPNServerOptions {
+	return &GetVPNServerOptions{
+		ID: core.StringPtr(id),
+	}
+}
+
 // SetID : Allow user to set ID
 func (_options *GetVPNGatewayOptions) SetID(id string) *GetVPNGatewayOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetVPNServerOptions) SetID(id string) *GetVPNServerOptions {
 	_options.ID = core.StringPtr(id)
 	return _options
 }
@@ -44394,6 +44705,27 @@ type ListVPNGatewaysOptions struct {
 
 	// Filters the collection to VPN gateways with the specified mode.
 	Mode *string `json:"mode,omitempty"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
+// ListVPNServersOptions : The ListVPNServers options.
+type ListVPNServersOptions struct {
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Filters the collection to resources in the resource group with the specified identifier.
+	ResourceGroupID *string `json:"resource_group.id,omitempty"`
+
+	// Filters the collection to VPN Servers with the specified mode.
+	Name *string `json:"name,omitempty"`
+
+	// Sort the result - Allowed:  [created_at,name]
+	Sort *string `json:"sort,omitempty"`
 
 	// Allows users to set headers on API requests
 	Headers map[string]string
@@ -57415,6 +57747,67 @@ func UnmarshalVPCReferenceDeleted(m map[string]json.RawMessage, result interface
 	return
 }
 
+// VPNServer : VPNServer struct
+// Models which "extend" this model:
+type VPNServer struct {
+
+	// Certificate CRN
+	Certificate *CertificateInstanceReference `json:"certificate" validate:"required"`
+
+	ClientAuthentication []VPNServerAuthentication `json:"client_authentication" validate:"required"`
+
+	ClientAutoDelete *bool `json:"client_auto_delete" validate:"required"`
+
+	ClientAutoDeleteTimeout *int64 `json:"client_auto_delete_timeout" validate:"required"`
+
+	ClientDnsServerIps []IP `json:"client_dns_server_ips" validate:"required"`
+
+	ClientIdleTimeout *int64 `json:"client_idle_timeout" validate:"required"`
+
+	ClientIpPool *string `json:"client_ip_pool" validate:"required"`
+
+	// The date and time that this VPN server was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The VPN server's CRN.
+	CRN *string `json:"crn" validate:"required"`
+
+	EnableSplitTunneling *bool `json:"enable_split_tunneling" validate:"required"`
+
+	// The status of the VPN server.
+	HealthState *string `json:"health_state" validate:"required"`
+
+	// The hostname of the VPN server.
+	Hostname *string `json:"hostname" validate:"required"`
+
+	// The VPN server's canonical URL.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this VPN server.
+	ID *string `json:"id" validate:"required"`
+
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The user-defined name for this VPN gateway.
+	Name *string `json:"name" validate:"required"`
+
+	Port *int16 `json:"port" validate:"required"`
+
+	PrivateIps []ReservedIPReference `json:"private_ips" validate:"required"`
+
+	Protocol *string `json:"protocol" validate:"required"`
+
+	// The resource group for this VPN server.
+	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"required"`
+
+	Subnets []SubnetReference `json:"subnets" validate:"required"`
+}
+
 // VPNGateway : VPNGateway struct
 // Models which "extend" this model:
 // - VPNGatewayRouteMode
@@ -57485,6 +57878,103 @@ type VPNGatewayIntf interface {
 	isaVPNGateway() bool
 }
 
+func (*VPNServer) isaVPNServer() bool {
+	return true
+}
+
+type VPNServerIntf interface {
+	isaVPNServer() bool
+}
+
+// UnmarshalVPNServer unmarshals an instance of VPNServer from the specified map of raw messages.
+func UnmarshalVPNServer(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNServer)
+
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "hostname", &obj.Hostname)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "client_auto_delete", &obj.ClientAutoDelete)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "client_auto_delete_timeout", &obj.ClientAutoDeleteTimeout)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "client_dns_server_ips", &obj.ClientDnsServerIps, UnmarshalIP)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_split_tunneling", &obj.EnableSplitTunneling)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "client_ip_pool", &obj.ClientIpPool)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "port", &obj.Port)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "security_groups", &obj.SecurityGroups, UnmarshalSecurityGroupReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "subnets", &obj.Subnets, UnmarshalSubnetReference)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "certificate", &obj.Certificate, UnmarshalCertificateInstanceReference)
+	if err != nil {
+		return
+	}
+
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // UnmarshalVPNGateway unmarshals an instance of VPNGateway from the specified map of raw messages.
 func UnmarshalVPNGateway(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGateway)
@@ -57536,6 +58026,7 @@ func UnmarshalVPNGateway(m map[string]json.RawMessage, result interface{}) (err 
 	if err != nil {
 		return
 	}
+
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -57557,6 +58048,52 @@ type VPNGatewayCollection struct {
 
 	// Collection of VPN gateways.
 	VPNGateways []VPNGatewayIntf `json:"vpn_gateways" validate:"required"`
+}
+
+// VPNServerCollection : VPNServerCollection struct
+type VPNServerCollection struct {
+	// A link to the first page of resources.
+	First *VPNServerCollectionFirst `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *VPNServerCollectionNext `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+
+	// Collection of VPN gateways.
+	VPNServers []VPNServerIntf `json:"vpn_servers" validate:"required"`
+}
+
+// UnmarshalVPNServerCollection unmarshals an instance of VPNServerCollection from the specified map of raw messages.
+func UnmarshalVPNServerCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNServerCollection)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalVPNServerCollectionFirst)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalVPNGatewayCollectionNext)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		return
+	}
+	err = core.UnmarshalModel(m, "vpn_servers", &obj.VPNServers, UnmarshalVPNServer)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
 }
 
 // UnmarshalVPNGatewayCollection unmarshals an instance of VPNGatewayCollection from the specified map of raw messages.
@@ -57604,6 +58141,23 @@ type VPNGatewayCollectionFirst struct {
 	Href *string `json:"href" validate:"required"`
 }
 
+// VPNServerCollectionFirst : A link to the first page of resources.
+type VPNServerCollectionFirst struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// UnmarshalVPNServerCollectionFirst unmarshals an instance of VPNServerCollectionFirst from the specified map of raw messages.
+func UnmarshalVPNServerCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNServerCollectionFirst)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // UnmarshalVPNGatewayCollectionFirst unmarshals an instance of VPNGatewayCollectionFirst from the specified map of raw messages.
 func UnmarshalVPNGatewayCollectionFirst(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayCollectionFirst)
@@ -57617,6 +58171,12 @@ func UnmarshalVPNGatewayCollectionFirst(m map[string]json.RawMessage, result int
 
 // VPNGatewayCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
 type VPNGatewayCollectionNext struct {
+	// The URL for a page of resources.
+	Href *string `json:"href" validate:"required"`
+}
+
+// VPNServerCollectionNext : A link to the next page of resources. This property is present for all pages except the last page.
+type VPNServerCollectionNext struct {
 	// The URL for a page of resources.
 	Href *string `json:"href" validate:"required"`
 }
@@ -58422,6 +58982,29 @@ func UnmarshalVPNGatewayConnectionStaticRouteModeTunnel(m map[string]json.RawMes
 	return
 }
 
+// VPNServerAuthentication : VPNServerAuthentication struct
+// Models which "extend" this model:
+// - VPNServerAuthenticationVPNServerAuthenticationUsername
+// - VPNServerAuthenticationVPNServerAuthenticationCertificate
+type VPNServerAuthentication interface {
+}
+
+// VPNServerAuthenticationVPNServerAuthenticationUsername : VPNServerAuthenticationVPNServerAuthenticationUsername struct
+// This model "extends" VPNServerAuthentication
+type VPNServerAuthenticationVPNServerAuthenticationUsername struct {
+	Method           *string                                           `json:"method" validate:"required"`
+	IdentityProvider *VPNServerAuthenticationByUsernameIdProviderByIAM `json:"identity_provider" validate:"required"`
+}
+
+type VPNServerAuthenticationByUsernameIdProviderByIAM struct {
+	ProviderType *string `json:"provider_type" validate:"required"`
+}
+
+type VPNServerAuthenticationVPNServerAuthenticationCertificate struct {
+	Method   *string                           `json:"method" validate:"required"`
+	ClientCa *CertificateInstanceIdentityByCRN `json:"client_ca" validate:"required"`
+}
+
 // VPNGatewayMember : VPNGatewayMember struct
 type VPNGatewayMember struct {
 	// The private IP address assigned to the VPN gateway member.
@@ -58505,6 +59088,36 @@ func (vpnGatewayPatch *VPNGatewayPatch) AsPatch() (_patch map[string]interface{}
 	return
 }
 
+// VPNServerPrototype : VPNServerPrototype struct
+type VPNServerPrototype struct {
+	// The user-defined name for this VPN server.
+	Name *string `json:"name,omitempty"`
+
+	// The resource group to use. If unspecified, the account's [default resource
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) is used.
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	Certificate CertificateInstanceReference `json:"certificate,required"`
+
+	ClientAuthentication []VPNServerAuthentication `json:"client_authentication,required"`
+
+	ClientIpPool *string `json:"client_ip_pool,required"`
+
+	Subnets []SubnetIdentity `json:"subnets,required"`
+
+	ClientDnsServerIps []IP `json:"client_dns_server_ips,omitempty"`
+
+	ClientIdleTimeout *uint16 `json:"client_idle_timeout,omitempty"`
+
+	EnableSplitTunneling *bool `json:"enable_split_tunneling,omitempty"`
+
+	Port *uint16 `json:"port,omitempty"`
+
+	Protocol *string `json:"protocol,omitempty"`
+
+	SecurityGroups []SecurityGroupReference `json:"security_groups" validate:"omitempty"`
+}
+
 // VPNGatewayPrototype : VPNGatewayPrototype struct
 // Models which "extend" this model:
 // - VPNGatewayPrototypeVPNGatewayRouteModePrototype
@@ -58536,6 +59149,10 @@ func (*VPNGatewayPrototype) isaVPNGatewayPrototype() bool {
 
 type VPNGatewayPrototypeIntf interface {
 	isaVPNGatewayPrototype() bool
+}
+
+type VPNServerPrototypeIntf interface {
+	isaVPNServerPrototype() bool
 }
 
 // UnmarshalVPNGatewayPrototype unmarshals an instance of VPNGatewayPrototype from the specified map of raw messages.
@@ -74691,6 +75308,10 @@ func (*VpcV1) NewVPNGatewayPrototypeVPNGatewayPolicyModePrototype(subnet SubnetI
 }
 
 func (*VPNGatewayPrototypeVPNGatewayPolicyModePrototype) isaVPNGatewayPrototype() bool {
+	return true
+}
+
+func (*VPNServerPrototype) isaVPNServerPrototype() bool {
 	return true
 }
 
