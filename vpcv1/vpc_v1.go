@@ -44743,6 +44743,11 @@ func (*VpcV1) NewListVPNGatewaysOptions() *ListVPNGatewaysOptions {
 	return &ListVPNGatewaysOptions{}
 }
 
+// NewListVPNServersOptions : Instantiate ListVPNServersOptions
+func (*VpcV1) NewListVPNServersOptions() *ListVPNServersOptions {
+	return &ListVPNServersOptions{}
+}
+
 // SetStart : Allow user to set Start
 func (_options *ListVPNGatewaysOptions) SetStart(start string) *ListVPNGatewaysOptions {
 	_options.Start = core.StringPtr(start)
