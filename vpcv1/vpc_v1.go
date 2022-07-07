@@ -16300,6 +16300,12 @@ func (vpc *VpcV1) UpdateVPNGateway(updateVPNGatewayOptions *UpdateVPNGatewayOpti
 	return vpc.UpdateVPNGatewayWithContext(context.Background(), updateVPNGatewayOptions)
 }
 
+// UpdateVPNServer : Update a VPN server
+// This request updates the properties of an existing VPN server.
+func (vpc *VpcV1) UpdateVPNServer(updateVPNServerOptions *UpdateVPNServerOptions) (result VPNServerIntf, response *core.DetailedResponse, err error) {
+	return vpc.UpdateVPNServerWithContext(context.Background(), updateVPNServerOptions)
+}
+
 // UpdateVPNGatewayWithContext is an alternate form of the UpdateVPNGateway method which supports a Context parameter
 func (vpc *VpcV1) UpdateVPNGatewayWithContext(ctx context.Context, updateVPNGatewayOptions *UpdateVPNGatewayOptions) (result VPNGatewayIntf, response *core.DetailedResponse, err error) {
 	err = core.ValidateNotNil(updateVPNGatewayOptions, "updateVPNGatewayOptions cannot be nil")
@@ -16354,6 +16360,71 @@ func (vpc *VpcV1) UpdateVPNGatewayWithContext(ctx context.Context, updateVPNGate
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGateway)
+		if err != nil {
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// UpdateVPNServerWithContext is an alternate form of the UpdateVPNServer method which supports a Context parameter
+func (vpc *VpcV1) UpdateVPNServerWithContext(ctx context.Context, updateVPNServerOptions *UpdateVPNServerOptions) (result VPNServerIntf, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(updateVPNServerOptions, "updateVPNServerOptions cannot be nil")
+	if err != nil {
+		return
+	}
+	err = core.ValidateStruct(updateVPNServerOptions, "updateVPNServerOptions")
+	if err != nil {
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *updateVPNServerOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PATCH)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_servers/{id}`, pathParamsMap)
+	if err != nil {
+		return
+	}
+
+	for headerName, headerValue := range updateVPNServerOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServer")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/merge-patch+json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.generation))
+
+	builder.AddQuery("maturity", "beta") // WARNING - will have to be managed properly
+
+	_, err = builder.SetBodyContentJSON(updateVPNServerOptions.VPNServerPatch)
+	if err != nil {
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNServer)
 		if err != nil {
 			return
 		}
@@ -57320,6 +57391,18 @@ type UpdateVPNGatewayOptions struct {
 	Headers map[string]string
 }
 
+// UpdateVPNServerOptions : The UpdateVPNServer options.
+type UpdateVPNServerOptions struct {
+	// The VPN server identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// The VPN server patch.
+	VPNServerPatch map[string]interface{} `json:"VPNServer_patch" validate:"required"`
+
+	// Allows users to set headers on API requests
+	Headers map[string]string
+}
+
 // NewUpdateVPNGatewayOptions : Instantiate UpdateVPNGatewayOptions
 func (*VpcV1) NewUpdateVPNGatewayOptions(id string, vpnGatewayPatch map[string]interface{}) *UpdateVPNGatewayOptions {
 	return &UpdateVPNGatewayOptions{
@@ -59076,6 +59159,29 @@ type VPNGatewayPatch struct {
 	Name *string `json:"name,omitempty"`
 }
 
+// VPNServerPatch : VPNServerPatch struct
+type VPNServerPatch struct {
+	Certificate *CertificateInstanceIdentityByCRN `json:"certificate,omitempty"`
+
+	ClientAuthentication []VPNServerAuthentication `json:"client_authentication,omitempty"`
+
+	ClientDnsServerIps []IP `json:"client_dns_server_ips,omitempty"`
+
+	ClientIdleTimeout *uint16 `json:"client_idle_timeout,omitempty"`
+
+	ClientIpPool *string `json:"client_ip_pool,omitempty"`
+
+	EnableSplitTunneling *bool `json:"enable_split_tunneling,omitempty"`
+
+	Name *string `json:"name,omitempty"`
+
+	Port *uint16 `json:"port,omitempty"`
+
+	Protocol *string `json:"protocol,omitempty"`
+
+	Subnets []SubnetIdentity `json:"subnets,omitempty"`
+}
+
 // UnmarshalVPNGatewayPatch unmarshals an instance of VPNGatewayPatch from the specified map of raw messages.
 func UnmarshalVPNGatewayPatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayPatch)
@@ -59091,6 +59197,16 @@ func UnmarshalVPNGatewayPatch(m map[string]json.RawMessage, result interface{}) 
 func (vpnGatewayPatch *VPNGatewayPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	var jsonData []byte
 	jsonData, err = json.Marshal(vpnGatewayPatch)
+	if err == nil {
+		err = json.Unmarshal(jsonData, &_patch)
+	}
+	return
+}
+
+// AsPatch returns a generic map representation of the VPNServerPatch
+func (vpnServerPatch *VPNServerPatch) AsPatch() (_patch map[string]interface{}, err error) {
+	var jsonData []byte
+	jsonData, err = json.Marshal(vpnServerPatch)
 	if err == nil {
 		err = json.Unmarshal(jsonData, &_patch)
 	}
