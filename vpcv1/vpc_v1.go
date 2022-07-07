@@ -57975,7 +57975,7 @@ func UnmarshalVPNServer(m map[string]json.RawMessage, result interface{}) (err e
 	if err != nil {
 		return
 	}
-	err = core.UnmarshalModel(m, "private_ips", &obj.Certificate, UnmarshalReservedIPReference)
+	err = core.UnmarshalModel(m, "private_ips", &obj.PrivateIps, UnmarshalReservedIPReference)
 	if err != nil {
 		return
 	}
